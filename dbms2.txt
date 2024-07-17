@@ -1,0 +1,97 @@
+create table student (USN varchar (20) primary key, sname varchar (20), address varchar (20), phone int, gender varchar (20)) ;
+
+
+create table semsec(SSID varchar (20) primary key, sem int, sec char);
+
+
+CREATE TABLE class (
+    USN VARCHAR(20),
+    SSID VARCHAR(20),
+    PRIMARY KEY (USN, SSID),
+    FOREIGN KEY (USN) REFERENCES student (USN) ON DELETE CASCADE,
+    FOREIGN KEY (SSID) REFERENCES semsec (SSID) ON DELETE CASCADE);
+
+
+create table course2(subcode varchar(20) primary key, title varchar(20),sem int, credit int);
+
+
+create table iamarks(USN varchar(20), subcode  varchar(20), SSID  varchar(20) , primary key(USN,subcode,SSID),
+FOREIGN KEY (USN) REFERENCES student (USN) ON DELETE CASCADE,
+    FOREIGN KEY (SSID) REFERENCES semsec (SSID) ON DELETE CASCADE,
+ FOREIGN KEY (subcode) REFERENCES course (subcode) ON DELETE CASCADE,
+test1 int,test2 int, test3 int, finalIA float);
+
+
+
+
+insert into student values('1DS22IS049','ARJUN','BANGALORE',95379823498,'MALE');
+insert into student values('1DS22IS022','ADITYA','BANGALORE',7364876347,'MALE');
+insert into student values('1DS22IS017','ANEESH','MATTUR',8528798579834,'MALE');
+insert into student values('1DS22IS058','VARSHA','PUNE',3479283748934,'FEMALE');
+insert into student values('1DS22IS007','RUPA','MANGALORE',8348748587,'FEMALE');
+SELECT * FROM student;
+
+
+insert into semsec values('4A01',4,'A');
+insert into semsec values('4C02',4,'C');
+insert into semsec values('8A01',8,'A');
+insert into semsec values('8C03',8,'C');
+insert into semsec values('5A01',5,'A');
+SELECT * FROM semsec;
+
+
+insert into class values('1DS22IS049','8A01');
+insert into class values('1DS22IS022''8A01');
+insert into class values('1DS22IS017','4C02');
+insert into class values('1DS22IS058','4C02');
+insert into class values('1DS22IS007','5A01');
+SELECT * FROM class;
+
+
+insert into course2 values('1','DBMS',5,4);
+insert into course2 values('3','CHEMISTRY',8,4);
+insert into course2 values('4','CNCS',4,2);
+insert into course2 values('5','PP',5,3);
+SELECT * FROM course;
+drop table course;
+
+
+insert into iamarks values('1DS22IS049','1','8A01',19,18,20,19);
+insert into iamarks values('1DS22IS022','3','8A01',18,12,13,15.5);
+insert into iamarks values('1DS22IS017','4','4C02',2,4,3,3.5);
+insert into iamarks values('1DS22IS058',4,'4C02',14,16,18,17);
+insert into iamarks values('1DS22IS007',5,'5A01',18,16,17,17);
+select * from iamarks;
+
+
+
+select s1.* from student s1,semsec s2,class c where s1.USN=c.USN and c.SSID=s2.SSID and s2.sem=4 and s2.sec='C';
+
+
+select s.gender , ss.sem, ss.sec, count(gender) from student s,semsec ss, class c where s.USN=c.USN and c.SSID=ss.SSID group by s.gender,ss.sem,ss.sec;
+
+
+create view IAmarks_1 as select subcode,test1 from iamarks where USN='1DS22IS049';
+select * from IAmarks_1;
+
+
+UPDATE iamarks 
+SET finalIA = (
+    (GREATEST(test1, test2, test3) + ((test1 + test2 + test3) - GREATEST(test1, test2, test3) - LEAST(test1, test2, test3))) / 2);
+select * from iamarks;
+
+
+select ss.sec,s.*,(case when IA.finalIA between 17and 20 then 'OUTSTANDING' when IA.finalIA between 12 and 16 then 'AVERAGE' else 'WEAK' end) As cat from student s,semsec ss, iamarks IA,course sub where s.USN=IA.USN and ss.SSID=IA.SSID and sub.subcode=IA.subcode and sub.sem=8;
+
+
+1) List all the student details studying in the fourth semester ‘C’ section.
+2) Compute the total number of male and female students in each semester and
+in each section.
+3) Create a view of Test1 marks of student USN ‘1DS22IS101’ in all Courses.
+4) Calculate the FinalIA (average of best two test marks) and update the
+corresponding table for all students.
+5) Categorize students based on the following criterion:
+ If FinalIA = 17 to 20 then CAT = ‘Outstanding’
+ If FinalIA = 12 to 16 then CAT = ‘Average’
+ If FinalIA< 12 then CAT = ‘Weak’
+ Give these details only for 8th semester A, B, and C section students. 
